@@ -1,0 +1,326 @@
+\documentclass{beamer}
+\usetheme{Goettingen}
+\usepackage{algorithm, algorithmicx}
+\title{Logic Structures in Assembly Language}
+\author{Anonymous}
+\institute{Peking University}
+\date{2021}
+\newtheorem{rmk}{Remark}
+\newcommand{\SubItem}[1]{
+    {\setlength\itemindent{15pt} \item[-] #1}
+}
+\begin{document}
+
+    \frame{\titlepage}
+    \begin{frame}{Outline}
+        \tableofcontents
+    \end{frame}
+
+    \section{Commands}
+    \begin{frame}{Basic Assembly Commands}
+        In Lesson 5, we learnt a bunch of new features, syntax and commands. Now let's take a little time to go over them once again.
+    \end{frame}
+        \subsection{Program Counter}
+        \begin{frame}{Program Counter}
+            \begin{itemize}
+                \item Definition: A register storing the address of the next command.
+                \item<2-> Only an \alert<2->{abstract concept}; Has different implementations, like \%rip(RIP) in x86.
+                \item<3-> Cannot be directly written (read-only).
+            \end{itemize}
+            \only<4->{
+                \begin{rmk}
+                Can be used to access data stored in memory with relative address difference.
+                \end{rmk}
+                \begin{example}
+                movq 8(\%rip) \%rax 
+                \end{example}
+            }
+        \end{frame}
+        \subsection{Condition Codes}
+        \begin{frame}{Condition Codes}
+            \begin{itemize}
+                \item Synonym: State Flag
+                \item<2-> Four Condition Codes:
+
+                    \begin{tabular}{|c|c|c|}
+                        \hline
+                        &Full Name&Meaning\\
+                        \hline\hline
+                        CF&Carry Flag&unsigned overflow\\
+                        \hline
+                        ZF&Zero Flag&zero\\
+                        \hline
+                        SF&Sign Flag&negative result\\
+                        \hline
+                        OF&Overflow Flag&signed overflow\\
+                        \hline
+                    \end{tabular}
+
+                \item<3-> Programmers should know which sort of (signed, unsigned) data they are dealing with. No checker inside CPU.
+            \end{itemize}
+        \end{frame}
+        \begin{frame}{How condition codes are set?}
+            The state of condition code depends on the result of the last arithmetic command.
+            \only<2->{
+            \begin{example}
+                Suppose all the flags are 0 at first, doing\\
+                sub \%rax \%rax\\
+                mov \%rbx \%rax\\
+                only changes ZF to be 1.
+            \end{example}
+        }
+        \only<3->{
+            \begin{rmk}
+                \textbf{leaq} doesn't change the condition code.
+            \end{rmk}
+        }
+        \only<4->{
+            \begin{rmk}
+                \textbf{inc} and \textbf{dec} set OF and ZF flags, but leave \textbf{CF} untouched.
+            \end{rmk}
+        }
+        \end{frame}
+        \subsection{Compare}
+        \begin{frame}{Compare}
+            There are two commands designed explicitly for setting the condition code: cmp (compare) and test.
+            \begin{block}{definition}
+                cmpX S2 S1 ($X \in \{b, w, l, q\}$): Do S1 - S2 without storing the result.
+            \end{block}
+            \only<2->{
+            \begin{rmk}
+                Used to compare the order of two (un)signed numbers.
+            \end{rmk}
+        }
+        \end{frame}
+        \subsection{Test}
+        \begin{frame}{Test}
+            \begin{block}{definition}
+                cmpX S2 S1 ($X \in \{b, w, l, q\}$): Do S1 \& S2 without storing the result.
+            \end{block}
+            \only<2->{
+            \begin{rmk}
+                Useful with a \textbf{mask} to check if some given digits are all 0.
+            \end{rmk}
+        }
+            \only<3->{
+            \begin{rmk}
+                Frequently used as testq \%rax \%rax to check if a number if zero. (Shorter than cmpq \%rax 0!)
+            \end{rmk}
+        }
+        \end{frame}
+        \subsection{Conditions}
+        \begin{frame}{Conditions}
+            \begin{itemize}
+                \item Canonical
+                    \begin{itemize}
+                        \item n: not        ~
+                        \item e: equal      ZF 
+                        \item z: zero       ZF
+                    \end{itemize}
+                \item<2-> Signed
+                    \begin{itemize}
+                        \item g: greater    ~(SF $\oplus$ OF)\&ZF
+                        \item l: less       SF $\oplus$ OF
+                    \end{itemize}
+                \item<3-> Unsigned
+                    \begin{itemize}
+                        \item a: above      ~CF\&~ZF
+                        \item b: below      CF
+                    \end{itemize}
+            \end{itemize}
+        \only<4->{
+        \begin{rmk}
+            \textbf{n} is used as a prefix to negate the conditions that follow.   
+        \end{rmk}
+        \begin{rmk}
+            \textbf{e} can be used as a suffix to a,b,g,l representing 'or equal'.
+        \end{rmk}
+    }
+        \end{frame}
+        \subsection{Set}
+        \begin{frame}{Set}
+            We need a way to retrieve and manipulate the condition codes.
+            \begin{block}{definition}
+                setX D (X is a condition): moving the corresponding combination of condition codes into the lower-order byte of D.
+            \end{block}
+            \begin{rmk}
+                Set doesn't clear the high-order bytes. 
+            \end{rmk}
+        \end{frame}
+        \subsection{Jumps}
+        \begin{frame}{Jumps}
+            To implement more complicated structures while minimizing the size of the assembly program, jumps are introduced.
+            \begin{block}{definition}
+                jmp X: jump to an memory address specified by X (can be a label)\\
+                jmp *R: jump to the memory address specified in register R\\
+                jmp *(R): jump to the memory address specified in the memory specified by register R
+            \end{block}
+            \only<2->{
+            \begin{rmk}
+                PC-relative encoding have two advantages:
+                \begin{itemize}
+                    \item more compactly encoded instruction
+                    \item more portable code
+                \end{itemize}
+            \end{rmk}
+        }
+        \end{frame}
+        \subsection{Jump Tables}
+        \begin{frame}{Jump Tables}
+            We can also use a constant table to refer to what's the jump destination.
+            \begin{block}{definition}
+                An anchor label and an alignment specification.
+            \end{block}
+            \only<2->{
+            \begin{block}{structure}
+                .section .rodata /* stands for read-only data */\\
+                    .align 8 /* specifies the alignment used in the table */\\
+                .L4: /* the anchor label */\\
+                .quad .L8\\
+	            .quad .L2\\
+	            ...
+            \end{block}
+            \begin{block}{usage}
+                jmp .L2(,\%rax,8): jump to the label specified by \%rax
+            \end{block}
+            }
+            \only<3->{
+            \begin{rmk}
+                Jump tables help perform jumps automatically.
+            \end{rmk}
+            }
+        \end{frame}
+
+    \section{Conditional Commands}
+        \subsection{Conditional Jumps}
+        \begin{frame}{Conditional Jumps}
+            To harness the power of condition codes, conditional jumps are introduced.
+            \begin{block}{definition}
+                jX D (X is a condition): jump to the address specified by D if X is satisfied.
+            \end{block}
+            \begin{rmk}
+                Conditional jump are the reason why we could implement logic structure.
+            \end{rmk}
+        \end{frame}
+        \begin{frame}{rep\&repz}
+            In the assembly code provided in the CSAPP textbook and the bomb lab, sometimes \textbf{ret} is written as \textbf{rep ret} or \textbf{repz ret}.\\
+            So, why are they there in the first place?
+            \only<2->{
+            \begin{block}{Answer}
+                They are only used for \alert<2->{AMD} CPUs since these CPUs cannot handle the return address if ret is reached from a conditional jump. In another word, rep and repz are meaningless occupiers that could avoid this situation from happening.
+            \end{block}
+            }
+        \end{frame}
+        \subsection{Conditional Moves}
+        \begin{frame}{Condition Moves}
+            Before diving into details why we introduce conditional moves, we first review the definition of conditional moves(cmov).
+            \begin{block}{definition}
+                cmovSX R1 R2 (S is the size and X is a condition): if X is satisfied, move data from R1 to R2.\\
+                R1, R2 cannot both be memory address.
+            \end{block}
+            \begin{example}
+                movq \%rdi, \%rax\\
+                subq \%rsi, \%rax\\
+                movq \%rsi, \%rdx\\
+                subq \%rdi, \%rdx\\ 
+                cmpq \%rsi, \%rdi\\
+                cmovge \%rdx, \%rax\\
+                ret
+            \end{example}
+        \end{frame}
+        \begin{frame}{Condition Moves}
+            So, why use cmov?
+            \begin{itemize}
+                \item<2-> Advantages\\
+                    \begin{itemize}
+                        \item Save space
+                        \item Enhanced performance on pipelined CPUs (while jmp perform terribly) due to \textbf{condition code transfers}.
+                    \end{itemize}
+                \item<3-> Disadvantages\\
+                    \begin{itemize}
+                        \item May break the structure of assembly code
+                        \item Increase the calculation workload
+                        \item Forbidden in some cases
+                    \end{itemize}
+                \item<4-> Bad cases\\
+                    \begin{itemize}
+                        \item Expensive evaluations: function-involved
+                        \item Risky computation: p ? *p : 0
+                        \item Computations with side effects: +=, *=
+                    \end{itemize}
+            \end{itemize}
+            \begin{rmk}<2->
+                Pipelined CPU achieves high performance by overlapping the steps of the successive instructions.
+            \end{rmk}
+        \end{frame}
+
+    \section{Logic Structures}
+        \subsection{Conditional Branches (if)}
+            \begin{frame}{if}
+                \begin{block}{Implementation}
+                    cmov, conditional jumps
+                \end{block}
+                \begin{example}
+                    Implement a function that return abs of the first argument.
+                \end{example}
+                \begin{block}{Answer}
+                    mov \%rdi \%rax
+                    test \%rax \%rax\\
+                    jge .L1\\
+                    sub \$0 \%rax\\
+                    .L1:\\
+                      repz ret
+                \end{block}
+            \end{frame}
+        \subsection{Loops (for, while)}
+            \begin{frame}{for, while}
+                \begin{block}{Implementation}
+                    conditional jumps
+                \end{block}
+                \begin{example}
+                    Implement a loop using \%rdi and \%rsi where the outer i iterates from 0 to 9 and the inner one iterates from i to 9 
+                \end{example}
+            \end{frame}
+            \begin{frame}{for,while}
+                \begin{block}{Answer}
+                    mov \$0 \%rdi\\
+                    jmp .CHECK1\\
+                    .LOOP1:
+                    mov \%rdi \%rsi\\
+                    jmp .CHECK2\\
+                    .LOOP2:\\
+                    ... //do stuff\\
+                    .CHECK2:\\
+                    cmp \%rsi \$9\\
+                    jle .LOOP2\\
+                    .CHECK1:\\
+                    cmp \%rdi \$9\\
+                    jle .LOOP1
+                \end{block}
+            \end{frame}
+        \subsection{Switch Statements (switch)}
+            \begin{frame}{switch}
+                \begin{block}{Implementation}
+                    jump tables
+                \end{block}
+                \begin{example}
+                    Implement a function on a 64x machine to jump to .L1 when \%rax is prime and .L1 when it is not. ($\%rax \in \{1,2,3,4\}$) 
+                \end{example}
+                \begin{block}{Answer}
+                    .section .rodata\\
+                    .align 8\\
+                    .ANCHOR:\\
+                    .quad .L0\\
+                    .quad .L1\\
+                    .quad .L1\\
+                    .quad .L0\\
+                    ...\\
+                    jmp .ANCHOR(,\%rax,\$8)
+                \end{block}
+            \end{frame}
+    \section{Exercises}
+        \begin{frame}{Exercises}
+            
+        \end{frame}
+
+\end{document}

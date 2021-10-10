@@ -1,0 +1,17 @@
+\beamer@sectionintoc {1}{Commands}{3}{0}{1}
+\beamer@subsectionintoc {1}{1}{Program Counter}{4}{0}{1}
+\beamer@subsectionintoc {1}{2}{Condition Codes}{8}{0}{1}
+\beamer@subsectionintoc {1}{3}{Compare}{15}{0}{1}
+\beamer@subsectionintoc {1}{4}{Test}{17}{0}{1}
+\beamer@subsectionintoc {1}{5}{Conditions}{20}{0}{1}
+\beamer@subsectionintoc {1}{6}{Set}{24}{0}{1}
+\beamer@subsectionintoc {1}{7}{Jumps}{25}{0}{1}
+\beamer@subsectionintoc {1}{8}{Jump Tables}{27}{0}{1}
+\beamer@sectionintoc {2}{Conditional Commands}{30}{0}{2}
+\beamer@subsectionintoc {2}{1}{Conditional Jumps}{30}{0}{2}
+\beamer@subsectionintoc {2}{2}{Conditional Moves}{33}{0}{2}
+\beamer@sectionintoc {3}{Logic Structures}{38}{0}{3}
+\beamer@subsectionintoc {3}{1}{Conditional Branches (if)}{38}{0}{3}
+\beamer@subsectionintoc {3}{2}{Loops (for, while)}{39}{0}{3}
+\beamer@subsectionintoc {3}{3}{Switch Statements (switch)}{41}{0}{3}
+\beamer@sectionintoc {4}{Exercises}{42}{0}{4}
