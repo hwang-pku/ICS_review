@@ -78,8 +78,10 @@
 \headcommand {\sectionentry {4}{Exercises}{42}{Exercises}{0}}
 \headcommand {\slideentry {4}{0}{1}{42/42}{}{0}}
 \headcommand {\beamer@framepages {42}{42}}
-\headcommand {\beamer@partpages {1}{42}}
-\headcommand {\beamer@subsectionpages {42}{42}}
-\headcommand {\beamer@sectionpages {42}{42}}
-\headcommand {\beamer@documentpages {42}}
-\headcommand {\gdef \inserttotalframenumber {21}}
+\headcommand {\slideentry {4}{0}{2}{43/43}{}{0}}
+\headcommand {\beamer@framepages {43}{43}}
+\headcommand {\beamer@partpages {1}{43}}
+\headcommand {\beamer@subsectionpages {42}{43}}
+\headcommand {\beamer@sectionpages {42}{43}}
+\headcommand {\beamer@documentpages {43}}
+\headcommand {\gdef \inserttotalframenumber {22}}

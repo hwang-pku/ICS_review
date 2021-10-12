@@ -2,7 +2,7 @@
 \usetheme{Goettingen}
 \usepackage{algorithm, algorithmicx}
 \title{Logic Structures in Assembly Language}
-\author{Anonymous}
+\author{XD}
 \institute{Peking University}
 \date{2021}
 \newtheorem{rmk}{Remark}
@@ -95,7 +95,7 @@
         \subsection{Test}
         \begin{frame}{Test}
             \begin{block}{definition}
-                cmpX S2 S1 ($X \in \{b, w, l, q\}$): Do S1 \& S2 without storing the result.
+                testX S2 S1 ($X \in \{b, w, l, q\}$): Do S1 \& S2 without storing the result.
             \end{block}
             \only<2->{
             \begin{rmk}
@@ -304,7 +304,7 @@
                     jump tables
                 \end{block}
                 \begin{example}
-                    Implement a function on a 64x machine to jump to .L1 when \%rax is prime and .L1 when it is not. ($\%rax \in \{1,2,3,4\}$) 
+                    Implement a function on a 64x machine to jump to .L1 when \%rax is prime and .L0 when it is not. ($\%rax \in \{1,2,3,4\}$) 
                 \end{example}
                 \begin{block}{Answer}
                     .section .rodata\\
@@ -320,7 +320,35 @@
             \end{frame}
     \section{Exercises}
         \begin{frame}{Exercises}
-            
+            Implemented on a x86-64 AMD machine.\\
+            function f(int a, int b, char flag)\{\\
+                return flag?abs(a-b):-abs(a-b);\\
+            \}\\
+            pushq \%rbp\\
+            \_\_(1)\_\_ \%dl \%rdx\\
+            \_\_(2)\_\_ \%rsi \%rdi\\
+                \_\_(3)\_\_ \%rbp\\
+            movzbq \%bpl \%rbp\\
+                \_\_(4)\_\_ \%rbp \%rdx\\
+            jnz .L1\\
+            \_\_(2)\_\_ \%rsi \%rdi\\
+            \_\_(5)\_\_ \%rbp\\
+            movzbq \%bpl \%rbp\\
+            \_\_(6)\_\_ \%rdx \%rbp\\
+            \_\_(7)\_\_ .L1\\
+
+            mov \%rdi \%rax\\
+            sub \_\_(8)\_\_  \_\_(9)\_\_\\
+            jmp .RET\\
+        \end{frame}
+        \begin{frame}{Exercises}
+            .L1:\\
+                mov \_\_(10)\_\_ \%rax\\
+                sub \_\_(11)\_\_ \_\_(12)\_\_
+
+            .RET:\\
+                pop \%rbp\\
+                \_\_(13)\_\_ ret
         \end{frame}
 
 \end{document}
